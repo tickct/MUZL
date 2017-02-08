@@ -9,8 +9,21 @@ Part 2 - Lexical Analyzer
  forking -> () if conditional yes and no
  comparisons -> == | => | =< | > | < |
      match x
-         [x] = x!
+         [x] = x|
          [x:xs] = x+xs!
  assignment -> =
  functions -> rule
  math -> +, -, %, /, *, ^ (fractional powers),
+ End line -> !
+ examples:
+ name rule ( arg1 type; arg2 type ) -> type = (X + Y)!
+
+  fact rule (x:[int])-> int =
+    match x
+    [x] = x|
+    [x:xs] = x + factx!
+
+  start x = fact(x)
+
+ .........................................................................
+

@@ -16,6 +16,9 @@ Part 2 - Lexical Analyzer
  math -> +, -, %, /, *, ^ (fractional powers),
  End line -> !
  examples:
+
+ person type = name: string, age: int!
+
  name rule ( arg1 type; arg2 type ) -> type = (X + Y)!
 
   fact rule (x:[int])-> int =
@@ -28,4 +31,4 @@ Part 2 - Lexical Analyzer
  .........................................................................
 
     PLY language site. Python LEX
-  http://www.dabeaz.com/ply/
+    http://www.dabeaz.com/ply/

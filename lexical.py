@@ -23,6 +23,8 @@ tokens = (
     'MATCH',
     'MATCHBREAK',
     'EOL',      # END OF LINE
+    'COMMA',
+    'BRACKET',
     'IF'
 )
 

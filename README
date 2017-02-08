@@ -1,0 +1,16 @@
+Morgan Peters
+Sean Gray
+
+CS 440 - Languages and Translators
+
+Part 2 - Lexical Analyzer
+ data types -> int, float, char, string, array, bool
+ logic -> and, or, xor, not
+ forking -> () if conditional yes and no
+ comparisons -> == | => | =< | > | < |
+     match x
+         [x] = x!
+         [x:xs] = x+xs!
+ assignment -> =
+ functions -> rule
+ math -> +, -, %, /, *, ^ (fractional powers),

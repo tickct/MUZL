@@ -37,21 +37,28 @@ t_RPAREN = r'\)'
 
 
 # action code of regular expressions
+
+def t_FLOAT(t):
+    r'-?\d+\.d*(e-?\d+)?'
+    t.value = float(t.value)
+    return t
+
+
 def t_INT(t):
     r'\d+'
     t.value = int(t.value)
     return t
 
 
-def t_FLOAT(t):
-    r'\d+'
-    t.value = float(t.value)
-
-
 # end of line; syntax the same as the example
 def t_EOL(t):
     r'!+'
     t.lexer.lineno += len(t.value)
+
+
+# reserved words...b
+# precedence
+
 
 # Main
 if __name__ == '__main__':

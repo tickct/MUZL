@@ -20,10 +20,18 @@ tokens = (
     'VAR', 'ARROW', 'MATCH',
     'MATCHBREAK',
     'EOL',      # END OF LINE
-    'COMMA', 'BRACKET', 'IF'
+    'COMMA', 'LBRACKET', 'RBRACKET', 'IF'
 )
 
 # regular expressions
+t_MATCHBREAK = r'\|'
+t_COMMA = r'\,'
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
+t_LETHAN = r'\<='
+t_LTHAN = r'\<'
+t_GETHAN = r'\>='
+t_GTHAN = r'\>'
 t_PLUS = r'\+'
 t_ARROW = r'->' # longer expressions must go first
 t_MINUS = r'-'
@@ -50,6 +58,11 @@ def t_INT(t):
     return t
 
 
+def t_comments(t):
+    r'[#][^\n]*'
+    pass
+
+
 # end of line; syntax the same as the example
 def t_EOL(t):
     r'!+'
@@ -59,7 +72,14 @@ def t_EOL(t):
 # reserved words...b
 # precedence
 
+# build it
 
 # Main
 if __name__ == '__main__':
-     lex.runmain()
+    lex.lex()
+    # trials
+    # lex.input("x = 3 * 4 + 4 * 6")
+    # while True:
+    #     tok = lex.token()
+    #     if not tok:
+    #         break

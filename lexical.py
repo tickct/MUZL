@@ -71,32 +71,34 @@ t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_COLON = r':'
 
-    # action code of regular expressions
+def t_STRING(t):
+    r'(").+(")'
+    t.value = t.value[1:-1]  #strips away the quotes
+    return t
+# action code of regular expressions
 #hex needs to be before int
 def t_HEX(t):
-    r'0x(\d|[a-fA-F])+'
+    r'0x(\d|[a-f]|[A-F])+\s'
     t.value = t.value[2:] #strips 0x
     return t
     
-def t_INT(t):
-    r'\d+'
-    t.value = int(t.value)
-    return t
-
 def t_FLOAT(t):
     r'-?\d+\.d*(e-?\d+)?'
     t.value = float(t.value)
     return t
 
+def t_INT(t):
+    r'-*\d+'
+    t.value = int(t.value)
+    return t
+
 def t_CHAR(t):
-    r'\'\w\''
+    r'(\')\S(\')'
     t.value = t.value[1:-1] #strips away the quotes
     return t
 
-def t_STRING(t):
-    r'\"\w+\w\"'
-    t.value = t.value[1:-1]  #strips away the quotes
-    return t
+
+
 def t_BOOL(t):
     r'(True|False)'
     if t.value=="True":
@@ -105,7 +107,7 @@ def t_BOOL(t):
         t.value=False
     return t
 def t_COMMENT(t):
-    r'\[\#].'
+    r'\#.+'
     pass
 
     # end of line; syntax the same as the example
@@ -130,7 +132,7 @@ def t_error(t):
     # precedence (i think this is the second part of the project?)
 
     # build it
-def getLex():
+def getLexer():
     return lex.lex()
     
     # Main

@@ -44,7 +44,8 @@ data_types_list = [
     'FLOAT',
     'CHAR',
     'STRING',
-    'BOOL'
+    'BOOL',
+    'HEX'
 ]
 
 #need to put all lists before reserved for some reason
@@ -71,7 +72,12 @@ t_RPAREN = r'\)'
 t_COLON = r':'
 
     # action code of regular expressions
-
+#hex needs to be before int
+def t_HEX(t):
+    r'0x(\d|[a-fA-F])+'
+    t.value = t.value[2:] #strips 0x
+    return t
+    
 def t_INT(t):
     r'\d+'
     t.value = int(t.value)
@@ -91,7 +97,13 @@ def t_STRING(t):
     r'\"\w+\w\"'
     t.value = t.value[1:-1]  #strips away the quotes
     return t
-
+def t_BOOL(t):
+    r'(True|False)'
+    if t.value=="True":
+        t.value=True
+    else:
+        t.value=False
+    return t
 def t_COMMENT(t):
     r'\[\#].'
     pass

@@ -14,8 +14,12 @@ reserved = {
     'rule': 'RULE',
     'start': 'START',
     'match': 'MATCH',
-    'int': 'INT',
-    'float': 'FLOAT',
+    #the _T notation tells us it is a type decloration variable not the value type
+    'int': 'INT_T',
+    'float': 'FLOAT_T',
+    'string': 'STRING_T',
+    'char': 'CHAR_T',
+    'bool': 'BOOL_T'
 }
 
 # Token list
@@ -31,17 +35,20 @@ tokens_list = [
     'VAR', 'ARROW',
     'MATCHBREAK',
     'EOL',      # END OF LINE
-    'COMMA', 'LBRACKET', 'RBRACKET','LPAREN','RPAREN',
+    'COMMA', 'LBRACKET', 'RBRACKET','LPAREN','RPAREN', 'COLON',
     'ID' #to match all words including reserved
 ]
+#seporated for easier reading, list of types with variable values
+data_types_list = [
+    'INT',
+    'FLOAT',
+    'CHAR',
+    'STRING',
+    'BOOL'
+]
 
-# it's weird it says tokens should be a list but then uses ()
-# in some :/ I just used []
-tokens = tokens_list + list(reserved.values())
-
-
-# I also didn't know if you wanted to do this as a class a def or just regular
-# the notes on ply has options for all three so it doesn't really matter
+#need to put all lists before reserved for some reason
+tokens = tokens_list + data_types_list + list(reserved.values())
     # regular expressions
 t_MATCHBREAK = r'\|'
 t_COMMA = r'\,'
@@ -61,17 +68,28 @@ t_ETO = r'=='
 t_EQUALS = r'='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
+t_COLON = r':'
 
     # action code of regular expressions
+
+def t_INT(t):
+    r'\d+'
+    t.value = int(t.value)
+    return t
 
 def t_FLOAT(t):
     r'-?\d+\.d*(e-?\d+)?'
     t.value = float(t.value)
     return t
 
-def t_INT(t):
-    r'\d+'
-    t.value = int(t.value)
+def t_CHAR(t):
+    r'\'\w\''
+    t.value = t.value[1:-1] #strips away the quotes
+    return t
+
+def t_STRING(t):
+    r'\"\w+\w\"'
+    t.value = t.value[1:-1]  #strips away the quotes
     return t
 
 def t_COMMENT(t):
@@ -88,7 +106,7 @@ def t_RESERVED(t):
     t.type = reserved.get(t.value,'ID')    # Check for reserved words
     return t
     # A string containing ignored characters (spaces and tabs)
-t_ignore = ' \t'
+t_ignore = ' \t \n'
 
 # literals? like for [], ! ect.. do we need these?
 

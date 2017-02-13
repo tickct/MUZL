@@ -3,6 +3,11 @@ Sean Gray
 
 CS 440 - Languages and Translators
 
+How to run:
+
+To run our analyzer you can either use the tests.py to run checks on the code.
+ Or you can call our lexer on a string to get the results from that string.
+
 Report:
 
 You have to submit a report of lexical analyzer
@@ -11,9 +16,9 @@ Such as operators, identifier, keywords.
 Define regular expressions of all tokens
 
 Tokens:
-    Operators:
 
-    'LOGIC',
+    Operators:
+    'LOGIC', # Or And Xor
     'EQUALS', 'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'POW',
     'LTHAN', 'LETHAN', 'GTHAN','GETHAN','ETO',
 

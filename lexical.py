@@ -7,7 +7,7 @@ MORGAN PETERS AND SEAN GRAY
 """
 
 import ply.lex as lex
-
+import sys
 # reserved words...
 reserved = {
     'if': 'IF',
@@ -150,3 +150,11 @@ def t_error(t):
 
 def getLexer():
     return lex.lex()
+
+if __name__ == '__main__':
+    lexer=getLexer()
+    #argv[1] is the first command line arg
+    lexer.input(sys.argv[1])
+    for tok in lexer:
+        print(tok)
+    

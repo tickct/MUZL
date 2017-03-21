@@ -152,8 +152,8 @@ def getLexer():
     return lex.lex()
 
 if __name__ == '__main__':
-    lexer=getLexer()
-    #argv[1] is the first command line arg
+    lexer = getLexer()
+    # argv[1] is the first command line arg
     lexer.input(sys.argv[1])
     for tok in lexer:
         print(tok)

@@ -1,64 +1,63 @@
 """
 Parser of MUZL
+
+use ast -> pythons abstract syntax tree function
+
 """
 
 import ply.yacc as yacc
+import ast
 # token map import
 from lexical import tokens
 
 # starting symbol
-start = 'fact'
-
-# lowest to highest
-precedence = (('nonassoc', 'LTHAN', 'GTHAN', 'ETO', 'GETHAN', 'LETHAN'),
-              ('left', 'PLUS', 'MINUS'),
-              ('left', 'TIMES', 'DIVIDE'),
-              ('left', 'POW'))
+# start = 'fact'
 
 
-def p_expression_pm(p):
-    ''' expression : expression PLUS term
-                    | expression MINUS term
-                    | expression DIVIDE term '''
-    if p[2] == '+':
-        p[0] = p[1] + p[3]
-    elif p[2] == '-':
-        p[0] = p[1] - p[3]
+# name rule ( arg1 type; arg2 type ) -> type = (X + Y)!
+def p_funcrule(p):
+    'funcrule: NAME RULE (parameters) ARROW TYPE EQUALS'
+    p[0] = ast.FunctionDef(None, p[1], tuple(p[3]), (), 0, None, p[5])
 
 
-def p_expression_term(p):
-    '''expression : term'''
-    p[0] = p[1]
+# parameters ( [vararglist] )
+def p_parameters(p):
+    '''parameters : LPAREN RPAREN
+                | LPAREN vararglist RPAREN'''
+    if len(p) == 3:
+        p[0] = []
+    else:
+        p[0] = p[2]
 
 
-def p_term_md(p):
-    '''term : term TIMES factor
-            | term DIVIDE factor '''
-    if p[2] == '*':
-        p[0] = p[1] * p[3]
-    elif p[2] == '/':
-        p[0] = p[1] / p[3]
+# vararglist:
+def p_vararglist(p):
+    '''vararglist: vararglist COMMA NAME TYPE
+                | NAME TYPE'''
+    pass
 
 
-def p_term_factor(p):
-    'term: factor'
-    p[0] = p[1]
+binary_ops = {
+    "+": ast.Add,
+    "-": ast.Sub,
+    "*": ast.Mult,
+    "/": ast.Div,
+}
 
 
-def p_term_float(p):
-    'term: FLOAT'
-    p[0] = p[1]
+precedence = (
+    ('nonassoc', 'LTHAN', 'GTHAN', 'ETO', 'GETHAN', 'LETHAN'),
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE'),
+    ('left', 'POW')
+    )
+
+
+def make_parser():
+    parser = yacc.yacc()
+    return parser
 
 
 if __name__ == "__main__":
-    parser = yacc.yacc()
+    make_parser()
 
-    while True:
-        try:
-            s = input('MUZL >')
-        except EOFError:
-            break
-        if not s:
-            continue
-
-        print(parser.parse(s))

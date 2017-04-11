@@ -11,8 +11,14 @@ import ply.yacc as yacc
 from lexical import tokens
 
 
+def p_term_mul(p):
+    '''term : term TIMES factor'''
+    p[0] = p[1] + p[3]
+
+
 def p_error(p):
     print("Syntax Error at", p.value)
+
 
 precedence = (
     ('nonassoc', 'LTHAN', 'GTHAN', 'ETO', 'GETHAN', 'LETHAN'),
@@ -23,12 +29,13 @@ precedence = (
 
 
 def make_parser():
-    parser = yacc.yacc()
-    return parser
+    yaccparser = yacc.yacc()
+    return yaccparser
 
 
 if __name__ == "__main__":
-    parser = make_parser()
-    print(parser.parse("123"))
+    yacc = make_parser()
+
+    print(yacc.parse("12 * 12"))
 
 

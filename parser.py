@@ -3,6 +3,7 @@ Parser of MUZL
 
 use ast -> pythons abstract syntax tree function
 
+Hi Sean
 """
 
 import ply.yacc as yacc

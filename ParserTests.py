@@ -160,7 +160,7 @@ class TestIntCast(unittest.TestCase):
         self.assertEqual(parser.parse('234.int'),234)
     def test_FLOAT_to_INT(self):
         parser=par.getParser()
-        self.assertEqual(parser.parse('1.6.int'),1)
+        self.assertEqual(parser.parse('1.6.int'),2)
         self.assertEqual(parser.parse('1.2.int'),1)
     def test_CHAR_to_INT(self):
         parser=par.getParser()

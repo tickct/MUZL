@@ -30,7 +30,7 @@ def TypeConvert(x,typ):
         if isinstance(x,str) and len(x) == 1:
             y = ord(x)
         else:
-            y = int(x)
+            y = int(round(x))
     elif typ == 'char':
         if isinstance(x,str) and len(x) == 1:
             y=x

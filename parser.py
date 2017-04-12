@@ -34,7 +34,7 @@ from lexical import tokens
 """
 def p_expression_plus(p):
     'expression : expression PLUS val'
-    p[0] = p[1] + p[3]
+    p[0] = p[1] + Number(p[3])
     
 def p_expression_val(p):
     'expression : val'
@@ -49,10 +49,7 @@ def p_type_change(p):
     if (len(p) == 2):
         p[0] = p[1]
     elif(p[2] == 'hex'):
-        print('hexing')
         p[0] = hex(int(p[1]))
-    else:
-        print('not hexing')
     
 def p_value(p):
     '''value : INT
@@ -95,3 +92,15 @@ while True:
     print(result)
 
 
+def Number(a):
+    if isinstance(a,int):
+        return float(a)
+    if isinstance(a,float):
+        return a
+    if isinstance(a,hex):
+        return float(int(a))
+    if isinstance(a,bool):
+        if a == True:
+            return 1
+        else:
+            return 0

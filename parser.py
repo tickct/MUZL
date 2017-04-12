@@ -9,6 +9,28 @@ import ply.yacc as yacc
 # token map import
 from lexical import tokens
 
+def Number(a):
+    if isinstance(a, int):
+        return float(a)
+    if isinstance(a, float):
+        return a
+    if isinstance(a, hex):
+        return float(int(a))
+    if isinstance(a, bool):
+        if a:
+            return 1
+        else:
+            return 0
+def TypeConvert(x,typ):
+    if typ == 'hex':
+        y = hex(int(x))
+    elif typ == 'int':
+        y = int(x)
+    elif typ == 'char':
+        y = chr(int(x))
+    elif typ == 'bool':
+        y = bool(x)
+    return y
 
 """def p_binary_operators(p):
     '''expression : expression PLUS expression
@@ -45,40 +67,48 @@ def p_expression_plus(p):
     p[0] = p[1] + Number(p[3])
 
 def p_expression_mult(p):
-    raise NotImplementedError
+    'expression : expression TIMES val'
+    p[0] = p[1] * Number(p[3])
 
 def p_expression_divide(p):
-    raise NotImplementedError
+    'expression : expression DIVIDE val'
+    p[0] = p[1] / Number(p[3])
 
 def p_expression_subtract(p):
-    raise NotImplementedError
+    '''expression : expression MINUS val
+                  | MINUS expression'''
+    if len(p) == 3:
+        p[0]=-p[2]
+    else:    
+        p[0] = p[1] - Number(p[3])
 
+def p_expression_pow(p):
+    'expression : expression POW val'
+    p[0] = p[1] ** Number(p[3])
+
+def p_expression_parens(p):
+    '''expression : LPAREN expression RPAREN
+                  | LPAREN expression RPAREN DOT type'''
+    if len(p) == 6:
+        p[0] = TypeConvert(p[2],p[5])
+    else:
+        p[0] = p[2]
+    
 def p_expression_val(p):
-    'expression : val'
-    p[0] = p[1]
-
-# No string type change added
-# does not recognise Char/doubles to convert
-def p_type_change(p):
-    '''val : VAR type
-           | VAR
-           | value type
-           | value '''
-    print(p[1],'.', p[2])
+    '''expression : val
+                  | val DOT type'''
     if len(p) == 2:
         p[0] = p[1]
-    elif p[2] == 'hex':
-        p[0] = hex(int(p[1]))
-    elif p[2] == 'int':
-        p[0] = int(p[1])
-    elif p[2] == 'char':
-        p[0] = chr(int(p[1]))
-    elif p[2] == 'bool':
-        p[0] = bool(p[1])
+    else:
+        p[0] = TypeConvert(p[1],p[3])
+   
+# No string type change added
+# does not recognise Char/doubles to convert
 
+    
 
 def p_value(p):
-    '''value : INT
+    '''val : INT
              | FLOAT
              | CHAR
              | STRING
@@ -111,25 +141,17 @@ precedence = (
 
 parser = yacc.yacc()
 
-while True:
-    try:
-        s = input('!-')
-    except EOFError:
-        break
-    if not s: continue
-    result = parser.parse(s)
-    print(result)
+def getParser():
+    return parser
+if __name__ == '__main__':
+    while True:
+        try:
+            s = input('!-')
+        except EOFError:
+            break
+        if not s: continue
+        result = parser.parse(s)
+        print(result)
 
 
-def Number(a):
-    if isinstance(a, int):
-        return float(a)
-    if isinstance(a, float):
-        return a
-    if isinstance(a, hex):
-        return float(int(a))
-    if isinstance(a, bool):
-        if a:
-            return 1
-        else:
-            return 0
+

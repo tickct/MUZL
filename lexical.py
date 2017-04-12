@@ -35,7 +35,7 @@ tokens_list = [
     'VAR', 'ARROW',
     'MATCHBREAK',
     'EOL',  # END OF LINE
-    'COMMA', 'LBRACKET', 'RBRACKET', 'LPAREN', 'RPAREN', 'COLON', 'DOT',
+    'COMMA', 'LBRACKET', 'RBRACKET', 'LPAREN', 'RPAREN', 'COLON','DOT',
     'ID',  # to match all words including reserved
 ]
 # separated for easier reading, list of types with variable values
@@ -71,7 +71,6 @@ t_EQUALS = r'='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_COLON = r':'
-t_DOT = r'.'
 
 def t_STRING(t):
     r'(").+(")'
@@ -88,13 +87,13 @@ def t_HEX(t):
 
 
 def t_FLOAT(t):
-    r'-?\d+\.d*(e-?\d+)?'
+    r'\d+\.\d+'
     t.value = float(t.value)
     return t
 
 
 def t_INT(t):
-    r'-*\d+'
+    r'\d+'
     t.value = int(t.value)
     return t
 
@@ -134,7 +133,7 @@ def t_RESERVED(t):
 
 
 t_ignore = ' \t \n'
-
+t_DOT = r'\.'
 
 # literals? like for [], ! ect.. do we need these?
 

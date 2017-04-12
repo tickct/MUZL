@@ -93,7 +93,7 @@ def p_expression_parens(p):
         p[0] = TypeConvert(p[2],p[5])
     else:
         p[0] = p[2]
-    
+        
 def p_expression_val(p):
     '''expression : val
                   | val DOT type'''

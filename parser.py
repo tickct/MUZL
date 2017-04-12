@@ -31,31 +31,40 @@ from lexical import tokens
         if p[1] == '(':
             p[0] = p[2]
 """
+
+def p_expression_comparisons(p):
+    '''expression : expression ETO val
+                  | expression LETHAN val
+                  | expression GETHAN val
+                  | expression GTHAN val
+                  | expression LTHAN val '''
+    raise NotImplementedError
+
 def p_expression_plus(p):
     'expression : expression PLUS val'
     p[0] = p[1] + Number(p[3])
 
 def p_expression_mult(p):
-    raise NotImplemented
+    raise NotImplementedError
 
 def p_expression_divide(p):
-    raise NotImplemented
+    raise NotImplementedError
 
 def p_expression_subtract(p):
-    raise NotImplemented
+    raise NotImplementedError
 
 def p_expression_val(p):
     'expression : val'
     p[0] = p[1]
 
-
 # No string type change added
+# does not recognise Char/doubles to convert
 def p_type_change(p):
     '''val : VAR type
            | VAR
            | value type
            | value '''
-    # print(p[1],'.', p[2])
+    print(p[1],'.', p[2])
     if len(p) == 2:
         p[0] = p[1]
     elif p[2] == 'hex':
@@ -64,6 +73,8 @@ def p_type_change(p):
         p[0] = int(p[1])
     elif p[2] == 'char':
         p[0] = chr(int(p[1]))
+    elif p[2] == 'bool':
+        p[0] = bool(p[1])
 
 
 def p_value(p):
@@ -111,13 +122,13 @@ while True:
 
 
 def Number(a):
-    if isinstance(a,int):
+    if isinstance(a, int):
         return float(a)
-    if isinstance(a,float):
+    if isinstance(a, float):
         return a
-    if isinstance(a,hex):
+    if isinstance(a, hex):
         return float(int(a))
-    if isinstance(a,bool):
+    if isinstance(a, bool):
         if a:
             return 1
         else:

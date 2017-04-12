@@ -35,8 +35,8 @@ tokens_list = [
     'VAR', 'ARROW',
     'MATCHBREAK',
     'EOL',  # END OF LINE
-    'COMMA', 'LBRACKET', 'RBRACKET', 'LPAREN', 'RPAREN', 'COLON',
-    'ID'  # to match all words including reserved
+    'COMMA', 'LBRACKET', 'RBRACKET', 'LPAREN', 'RPAREN', 'COLON', 'DOT',
+    'ID',  # to match all words including reserved
 ]
 # separated for easier reading, list of types with variable values
 data_types_list = [
@@ -71,7 +71,7 @@ t_EQUALS = r'='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_COLON = r':'
-
+t_DOT = r'.'
 
 def t_STRING(t):
     r'(").+(")'
@@ -158,3 +158,4 @@ if __name__ == '__main__':
     for tok in lexer:
         print(tok)
     
+lexer = lex.lex()

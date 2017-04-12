@@ -11,11 +11,35 @@ import ply.yacc as yacc
 from lexical import tokens
 
 
-def p_term_mul(p):
-    '''term : term TIMES factor'''
-    p[0] = p[1] + p[3]
-
-
+def p_binary_operators(p):
+    '''expression : expression PLUS expression
+                  | expression MINUS expression
+                  | expression TIMES expression
+                  | expression DIVIDE expression
+                  | LPAREN expression RPAREN
+                  | val'''
+def p_type_change(p):
+    '''val : VAR DOT type
+           | VAR
+           | value DOT type
+           | value '''
+    
+def p_value(p):
+    '''value : INT
+             | FLOAT
+             | CHAR
+             | STRING
+             | BOOL
+             | HEX '''
+    
+def p_type(p):
+    '''type : INT_T
+            | FLOAT_T
+            | CHAR_T
+            | STRING_T
+            | BOOL_T
+            | HEX_T '''
+    
 def p_error(p):
     print("Syntax Error at", p.value)
 

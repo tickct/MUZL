@@ -14,22 +14,36 @@ def Number(a):
         return float(a)
     if isinstance(a, float):
         return a
-    if isinstance(a, hex):
-        return float(int(a))
     if isinstance(a, bool):
         if a:
             return 1
         else:
             return 0
+    if isinstance(a,str) and len(a) == 1:
+        return ord(a)
+    
 def TypeConvert(x,typ):
     if typ == 'hex':
         y = hex(int(x))
     elif typ == 'int':
-        y = int(x)
+        #char isnt a type in python
+        if isinstance(x,str) and len(x) == 1:
+            y = ord(x)
+        else:
+            y = int(x)
     elif typ == 'char':
-        y = chr(int(x))
+        if isinstance(x,str) and len(x) == 1:
+            y=x
+        else:
+            y = chr(int(x))
     elif typ == 'bool':
         y = bool(x)
+    elif typ == 'float':
+        #for char
+        if isinstance(x,str) and len(x) == 1:
+            y = float(ord(x))
+        else:
+            y = float(x)
     return y
 
 """def p_binary_operators(p):
@@ -64,15 +78,15 @@ def p_expression_comparisons(p):
 
 def p_expression_plus(p):
     'expression : expression PLUS val'
-    p[0] = p[1] + Number(p[3])
+    p[0] = Number(p[1]) + Number(p[3])
 
 def p_expression_mult(p):
     'expression : expression TIMES val'
-    p[0] = p[1] * Number(p[3])
+    p[0] = Number(p[1]) * Number(p[3])
 
 def p_expression_divide(p):
     'expression : expression DIVIDE val'
-    p[0] = p[1] / Number(p[3])
+    p[0] = Number(p[1]) / Number(p[3])
 
 def p_expression_subtract(p):
     '''expression : expression MINUS val
@@ -80,7 +94,7 @@ def p_expression_subtract(p):
     if len(p) == 3:
         p[0]=-p[2]
     else:    
-        p[0] = p[1] - Number(p[3])
+        p[0] = Number(p[1]) - Number(p[3])
 
 def p_expression_pow(p):
     'expression : expression POW val'

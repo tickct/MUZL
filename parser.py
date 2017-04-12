@@ -44,14 +44,19 @@ def p_expression_plus(p):
     'expression : expression PLUS val'
     p[0] = p[1] + Number(p[3])
 
-def p_expression_mult(p):
-    raise NotImplementedError
+def p_expression_times(p):
+    'expression : expression TIMES val'
+    p[0] = p[1] * Number(p[3])
 
 def p_expression_divide(p):
-    raise NotImplementedError
+    'expression : expression DIVIDE val'
+    p[0] = p[1] / Number(p[3])
+    # raise NotImplementedError
 
-def p_expression_subtract(p):
-    raise NotImplementedError
+def p_expression_minus(p):
+    'expression : expression MINUS val'
+    p[0] = p[1] - Number(p[3])
+    # raise NotImplementedError
 
 def p_expression_val(p):
     'expression : val'

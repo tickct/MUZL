@@ -1,9 +1,8 @@
 """
+Morgan Peters and Sean Gray
+CS 440: Languages and Translators
+Spring 2017
 Parser of MUZL
-
-use ast -> pythons abstract syntax tree function
-
-Hi Sean
 """
 
 import ply.yacc as yacc
@@ -35,22 +34,38 @@ from lexical import tokens
 def p_expression_plus(p):
     'expression : expression PLUS val'
     p[0] = p[1] + Number(p[3])
-    
+
+def p_expression_mult(p):
+    raise NotImplemented
+
+def p_expression_divide(p):
+    raise NotImplemented
+
+def p_expression_subtract(p):
+    raise NotImplemented
+
 def p_expression_val(p):
     'expression : val'
     p[0] = p[1]
-    
+
+
+# No string type change added
 def p_type_change(p):
     '''val : VAR type
            | VAR
            | value type
            | value '''
-    print(p[1])
-    if (len(p) == 2):
+    # print(p[1],'.', p[2])
+    if len(p) == 2:
         p[0] = p[1]
-    elif(p[2] == 'hex'):
+    elif p[2] == 'hex':
         p[0] = hex(int(p[1]))
-    
+    elif p[2] == 'int':
+        p[0] = int(p[1])
+    elif p[2] == 'char':
+        p[0] = chr(int(p[1]))
+
+
 def p_value(p):
     '''value : INT
              | FLOAT
@@ -59,6 +74,8 @@ def p_value(p):
              | BOOL
              | HEX '''
     p[0] = p[1]
+
+
 def p_type(p):
     '''type : INT_T
             | FLOAT_T
@@ -67,7 +84,8 @@ def p_type(p):
             | BOOL_T
             | HEX_T '''
     p[0] = p[1]
-    
+
+
 def p_error(p):
     print("Syntax Error at", p.value)
    
@@ -100,7 +118,7 @@ def Number(a):
     if isinstance(a,hex):
         return float(int(a))
     if isinstance(a,bool):
-        if a == True:
+        if a:
             return 1
         else:
             return 0

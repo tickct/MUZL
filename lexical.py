@@ -81,8 +81,8 @@ def t_STRING(t):
 # action code of regular expressions
 # hex needs to be before int
 def t_HEX(t):
-    r'0x(\d|[a-f]|[A-F])+\s'
-    t.value = t.value[2:]  # strips 0x
+    r'0x(\d|[a-f]|[A-F])+'
+    t.value = t.value  # strips 0x
     return t
 
 

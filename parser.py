@@ -19,33 +19,58 @@ def Number(a):
             return 1
         else:
             return 0
-    if isinstance(a,str) and len(a) == 1:
-        return ord(a)
+    if isinstance(a,str):
+        if len(a) == 1:
+            return ord(a)
+        elif a[1] == 'x':
+            return int(a,0)
+    
     
 def TypeConvert(x,typ):
     if typ == 'hex':
-        y = hex(int(x))
+        if isinstance(x,str):
+            if len(x) == 1:
+                y = hex(ord(x))
+            else:
+                y = hex(int(x,0))
+        else:
+            y = hex(int(x))
     elif typ == 'int':
         #char isnt a type in python
-        if isinstance(x,str) and len(x) == 1:
-            y = ord(x)
+        if isinstance(x,str):
+            if len(x) == 1:
+                y = ord(x)
+            else:
+                y=int(x,0)
         else:
             y = int(round(x))
     elif typ == 'char':
-        if isinstance(x,str) and len(x) == 1:
-            y=x
+        if isinstance(x,str):
+            if len(x) == 1:
+                y=x
+            else:
+                y=chr(int(x,0))
         else:
             y = chr(int(x))
     elif typ == 'bool':
         y = bool(x)
     elif typ == 'float':
         #for char
-        if isinstance(x,str) and len(x) == 1:
-            y = float(ord(x))
+        if isinstance(x,str):
+            if len(x) == 1:
+                y = float(ord(x))
+            else:
+                y= float(int(x,0))
         else:
             y = float(x)
     return y
 
+precedence = (
+    ('nonassoc', 'LTHAN', 'GTHAN', 'ETO', 'GETHAN', 'LETHAN'),
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE'),
+    ('left', 'POW')
+    )
 """def p_binary_operators(p):
     '''expression : expression PLUS expression
                   | expression MINUS expression
@@ -145,12 +170,7 @@ def p_error(p):
     print("Syntax Error at", p.value)
    
 
-precedence = (
-    ('nonassoc', 'LTHAN', 'GTHAN', 'ETO', 'GETHAN', 'LETHAN'),
-    ('left', 'PLUS', 'MINUS'),
-    ('left', 'TIMES', 'DIVIDE'),
-    ('left', 'POW')
-    )
+
 
 
 parser = yacc.yacc()

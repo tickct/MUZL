@@ -17,7 +17,11 @@ class TestAddMath(unittest.TestCase):
         self.assertEqual(parser.parse('\'a\'+\'a\''),194)
         self.assertEqual(parser.parse('\'F\'+\'a\''),167)
         self.assertEqual(parser.parse('\'F\'+\'a\'+\'a\''),264)
-        
+    def test_ADD_HEX(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x1+0x1'),2.0)
+        self.assertEqual(parser.parse('0x6e+0xf'),125.0)
+
     def test_ADD_FLOATS_AND_INT(self):
         parser=par.getParser()
         self.assertAlmostEqual(parser.parse('1.34+2'),3.34)
@@ -33,10 +37,18 @@ class TestAddMath(unittest.TestCase):
         self.assertEqual(parser.parse('\'a\'+1.1'),98.1)
         self.assertEqual(parser.parse('2.2+\'F\''),72.2)
         self.assertEqual(parser.parse('\'F\'+ 2.5 +\'a\''),169.5)
-        
-    def test_ADD_FLOAT_AND_INT_AND_CHAR(self):
+    def test_ADD_HEX_AND_INT(self):
         parser=par.getParser()
-        self.assertEqual(parser.parse('\'F\'+ 2 +97.2'),169.2)
+        self.assertEqual(parser.parse('0x6e+1'),111)
+    def test_add_HEX_AND_FLOAT(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x6e+1.0'),111.0)
+    def test_add_HEX_AND_CHAR(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x6e+\'A\''),175)
+    def test_ADD_ALL(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('\'F\'+ 2 +97.2+0x1'),170.2)
 
 class TestSubMath(unittest.TestCase):
     def test_SUBTRACT_INTS(self):
@@ -55,6 +67,10 @@ class TestSubMath(unittest.TestCase):
         self.assertEqual(parser.parse('\'a\'-\'F\''),27)
         self.assertEqual(parser.parse('\'F\'-\'a\'-\'a\''),-124)
         
+    def test_SUBTRACT_HEXS(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x6e-0x4f'),31)
+                         
     def test_SUBTRACT_FLOATS_AND_INT(self):
         parser=par.getParser()
         self.assertAlmostEqual(parser.parse('2-1.23'),0.77)
@@ -71,10 +87,19 @@ class TestSubMath(unittest.TestCase):
         self.assertAlmostEqual(parser.parse('\'a\'-1.1'),95.9)
         self.assertAlmostEqual(parser.parse('2.2-\'F\''),-67.8)
         self.assertAlmostEqual(parser.parse('\'F\'- 2.5 -\'a\''),-29.5)
-        
-    def test_SUBTRACT_FLOAT_AND_INT_AND_CHAR(self):
+    def test_SUBTRACT_HEX_AND_INT(self):
         parser=par.getParser()
-        self.assertAlmostEqual(parser.parse('\'F\'- 2 -97.2'),-29.2)
+        self.assertEqual(parser.parse('0x6e-1'),109)
+    def test_SUBTRACT_HEX_AND_FLOAT(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x6e-1.2'),108.8)
+    def test_SUBTRACT_HEX_AND_CHAR(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x6e-\'A\''),45)
+        
+    def test_SUBTRACT_ALL(self):
+        parser=par.getParser()
+        self.assertAlmostEqual(parser.parse('\'F\'- 2 -97.2-0x1'),-30.2)
         
 class testMultMath(unittest.TestCase):
     def test_MULT_INTS(self):
@@ -108,10 +133,19 @@ class testMultMath(unittest.TestCase):
         self.assertAlmostEqual(parser.parse('\'a\'*1.23'),119.31)
         self.assertAlmostEqual(parser.parse('100.2*\'a\''),9719.4)
         self.assertAlmostEqual(parser.parse('\'a\'*2.2*3.0'),640.2)
-        
-    def test_MULT_INT_AND_FLOAT_AND_CHAR(self):
+
+    def test_MULT_HEX_AND_INT(self):
         parser=par.getParser()
-        self.assertAlmostEqual(parser.parse('\'a\'*2.2*3'),640.2)
+        self.assertEqual(parser.parse('0x6e*1'),110)
+    def test_MULT_HEX_AND_FLOAT(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x6e*2.5'),275)
+    def test_MULT_HEX_AND_CHAR(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x6e*\'A\''),7150)
+    def test_MULT_ALL(self):
+        parser=par.getParser()
+        self.assertAlmostEqual(parser.parse('\'a\'*2.2*3*0x2'),1280.4)
 
 class testDivMath(unittest.TestCase):
     def test_DIV_INTS(self):
@@ -144,9 +178,18 @@ class testDivMath(unittest.TestCase):
         self.assertAlmostEqual(parser.parse('\'a\'/97.2'),0.997942387)
         self.assertAlmostEqual(parser.parse('46.5/\'F\''),0.664285714)
         self.assertAlmostEqual(parser.parse('\'A\'/45.6/\'C\''),0.021275203)
-    def test_DIV_INT_AND_FLOAT_AND_CHAR(self):
+    def test_DIV_HEX_AND_INT(self):
         parser=par.getParser()
-        self.assertAlmostEqual(parser.parse('\'A\'/45.6/67'),0.021275203)
+        self.assertEqual(parser.parse('0x6e/2'),55)
+    def test_DIV_HEX_AND_FLOAT(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x6e/2.5'),44)
+    def test_DIV_HEX_AND_CHAR(self):
+        parser=par.getParser()
+        self.assertAlmostEqual(parser.parse('0x6e/\'A\''),1.692307692)    
+    def test_DIV_ALL(self):
+        parser=par.getParser()
+        self.assertAlmostEqual(parser.parse('\'A\'/45.6/67/0x2'),0.010637601)
 class TestNegatives(unittest.TestCase):
     def test_NEG_NUMBER(self):
         parser=par.getParser()
@@ -166,8 +209,11 @@ class TestIntCast(unittest.TestCase):
         parser=par.getParser()
         self.assertEqual(parser.parse('\'a\'.int'),97)
         self.assertEqual(parser.parse('\'A\'.int'),65)
-                        
-
+    def test_HEX_to_INT(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x61.float'),97.0)
+        self.assertEqual(parser.parse('0x41.float'),65.0)
+        
 class TestFloatCast(unittest.TestCase):
     def test_INT_to_FLOAT(self):
         parser=par.getParser()
@@ -181,6 +227,10 @@ class TestFloatCast(unittest.TestCase):
         parser=par.getParser()
         self.assertEqual(parser.parse('\'a\'.float'),97.0)
         self.assertEqual(parser.parse('\'A\'.float'),65.0)
+    def test_HEX_to_FLOAT(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x61.float'),97.0)
+        self.assertEqual(parser.parse('0x41.float'),65.0)
 
 class TestCharCast(unittest.TestCase):
     def test_INT_to_CHAR(self):
@@ -195,5 +245,34 @@ class TestCharCast(unittest.TestCase):
         parser=par.getParser()
         self.assertEqual(parser.parse('\'a\'.char'),'a')
         self.assertEqual(parser.parse('\'A\'.char'),'A')
+    def test_HEX_to_CHAR(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x61.char'),'a')
+        self.assertEqual(parser.parse('0x41.char'),'A')
+
+class TestHexCast(unittest.TestCase):
+    def test_INT_to_HEX(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('97.hex'),'0x61')
+        self.assertEqual(parser.parse('66.hex'),'0x42')
+    def test_FLOAT_to_HEX(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('97.6.hex'),'0x61')
+        self.assertEqual(parser.parse('66.2.hex'),'0x42')
+    def test_CHAR_to_HEX(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('\'a\'.hex'),'0x61')
+        self.assertEqual(parser.parse('\'A\'.hex'),'0x41')
+    def test_HEX_to_HEX(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('0x42.hex'),'0x42')
+        self.assertEqual(parser.parse('0x61.hex'),'0x61')
+
+class PresidenceTest(unittest.TestCase):
+    @unittest.skip("not working")
+    def test_MULT_over_ADD(self):
+        parser=par.getParser()
+        self.assertEqual(parser.parse('3*2+1'),7)
+        self.assertEqual(parser.parse('1+3*2'),7)
 if __name__ == '__main__':
     unittest.main()

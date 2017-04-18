@@ -38,21 +38,11 @@ class TestDataAssignment(unittest.TestCase):
         lexer.input("12")
         self.assertNotEqual(lexer.token().type,"FLOAT")
 
-    def test_Floatcanberead(self):
-        lexer=lex.getLexer()
-        lexer.input("-12.0")
-        self.assertEqual(lexer.token().type,"FLOAT")
-
     def test_IntRead(self):
         lexer=lex.getLexer()
         lexer.input("12 a")
         self.assertEqual(lexer.token().type,"INT")
         self.assertNotEqual(lexer.token().type,"INT")
-
-    def test_IntcanBeNeg(self):
-        lexer=lex.getLexer()
-        lexer.input("-12")
-        self.assertEqual(lexer.token().type,"INT")
 
     def test_IntisnotFloat(self):
         lexer=lex.getLexer()

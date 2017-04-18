@@ -71,6 +71,7 @@ t_EQUALS = r'='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_COLON = r':'
+t_EOL = r'!'
 
 def t_STRING(t):
     r'(").+(")'
@@ -120,9 +121,10 @@ def t_COMMENT(t):
     # end of line; syntax the same as the example
 
 
-def t_EOL(t):
+'''def t_EOL(t):
     r'!+'
     t.lexer.lineno += len(t.value)
+    t.value = 'EOL'''
 
 
 def t_RESERVED(t):

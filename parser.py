@@ -9,7 +9,8 @@ import ply.yacc as yacc
 # token map import
 from lexical import tokens
 
-def Number(a):
+
+def number(a):
     if isinstance(a, int):
         return float(a)
     if isinstance(a, float):
@@ -26,7 +27,7 @@ def Number(a):
             return int(a,0)
     
     
-def TypeConvert(x,typ):
+def type_convert(x, typ):
     if typ == 'hex':
         if isinstance(x,str):
             if len(x) == 1:
@@ -93,6 +94,7 @@ precedence = (
             p[0] = p[2]
 """
 
+
 def p_expression_comparisons(p):
     '''expression : expression ETO val
                   | expression LETHAN val
@@ -101,17 +103,21 @@ def p_expression_comparisons(p):
                   | expression LTHAN val '''
     raise NotImplementedError
 
+
 def p_expression_plus(p):
     'expression : expression PLUS val'
-    p[0] = Number(p[1]) + Number(p[3])
+    p[0] = number(p[1]) + number(p[3])
+
 
 def p_expression_mult(p):
     'expression : expression TIMES val'
-    p[0] = Number(p[1]) * Number(p[3])
+    p[0] = number(p[1]) * number(p[3])
+
 
 def p_expression_divide(p):
     'expression : expression DIVIDE val'
-    p[0] = Number(p[1]) / Number(p[3])
+    p[0] = number(p[1]) / number(p[3])
+
 
 def p_expression_subtract(p):
     '''expression : expression MINUS val
@@ -119,32 +125,33 @@ def p_expression_subtract(p):
     if len(p) == 3:
         p[0]=-p[2]
     else:    
-        p[0] = Number(p[1]) - Number(p[3])
+        p[0] = number(p[1]) - number(p[3])
+
 
 def p_expression_pow(p):
     'expression : expression POW val'
-    p[0] = p[1] ** Number(p[3])
+    p[0] = p[1] ** number(p[3])
+
 
 def p_expression_parens(p):
     '''expression : LPAREN expression RPAREN
                   | LPAREN expression RPAREN DOT type'''
     if len(p) == 6:
-        p[0] = TypeConvert(p[2],p[5])
+        p[0] = type_convert(p[2], p[5])
     else:
         p[0] = p[2]
-        
+
+
 def p_expression_val(p):
     '''expression : val
                   | val DOT type'''
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = TypeConvert(p[1],p[3])
+        p[0] = type_convert(p[1], p[3])
    
 # No string type change added
-# does not recognise Char/doubles to convert
 
-    
 
 def p_value(p):
     '''val : INT
@@ -168,22 +175,22 @@ def p_type(p):
 
 def p_error(p):
     print("Syntax Error at", p.value)
-   
-
-
 
 
 parser = yacc.yacc()
 
-def getParser():
+
+def get_parser():
     return parser
+
 if __name__ == '__main__':
     while True:
         try:
             s = input('!-')
         except EOFError:
             break
-        if not s: continue
+        if not s:
+            continue
         result = parser.parse(s)
         print(result)
 

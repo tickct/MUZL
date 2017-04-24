@@ -323,11 +323,18 @@ class TestHexCast(unittest.TestCase):
 
 
 class PresidenceTest(unittest.TestCase):
-    @unittest.skip("not working")
     def test_MULT_over_ADD(self):
         parser = par.get_parser()
         self.assertEqual(parser.parse('3*2+1'), 7)
         self.assertEqual(parser.parse('1+3*2'), 7)
+    def test_DIV_over_ADD(self):
+        parser = par.get_parser()
+        self.assertAlmostEquals(parser.parse('3+4/2'), 5)
+        self.assertAlmostEquals(parser.parse('4/2+3'), 5)
+    def test_PARENS_over_ALL(self):
+        parser = par.get_parser()
+        self.assertEqual(parser.parse('(1+2)*3'), 9)
+        self.assertEqual(parser.parse('6/(1+2)'), 2)
 
 
 if __name__ == '__main__':

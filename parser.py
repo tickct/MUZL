@@ -8,6 +8,10 @@ Parser of MUZL
 import ply.yacc as yacc
 # token map import
 from lexical import tokens
+import MuzlRule
+
+rules={}
+variables={}
 
 
 def number(a):
@@ -66,35 +70,40 @@ def type_convert(x, typ):
             y = float(x)
     return y
 
+# this needs to stay above all the start options, it defines what items can stand alone in a parse
+def p_start(p):
+    '''start : rule
+             | expression'''
+    p[0] = p[1]
+
+def p_rule(p):
+    '''rule : rname RULE LPAREN assign RPAREN ARROW type RBLOCK'''
+    rules[p[1]]=MuzlRule.rule(p[1],p[4],p[7],p[8])
+    p[0]= p[1] + ' created.'
+
+def p_rname(p):
+    '''rname : ID'''
+    p[0]=p[1]
+def p_assign_variables(p):
+    '''assign : assign COLON ID type
+              | ID type
+              | empty '''
+    if len(p) == 3:
+        p[0]=[[p[1],p[2]]]
+    elif len(p) == 5:
+        #these two need to be on different lines due to = assigning before .append
+        p[1].append([p[3],p[4]])
+        p[0]=p[1]
+        #catch no args so it is empty list vs none
+    else:
+        p[0]=[]
+
 precedence = (
     ('nonassoc', 'LTHAN', 'GTHAN', 'ETO', 'GETHAN', 'LETHAN'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE'),
     ('left', 'POW')
     )
-"""def p_binary_operators(p):
-    '''expression : expression PLUS expression
-                  | expression MINUS expression
-                  | expression TIMES expression
-                  | expression DIVIDE expression
-                  | LPAREN expression RPAREN
-                  | val'''
-    print(x for x in p)
-    if (len(p) == 4) :
-        if p[2] == '+':
-            print(p)
-            p[0] = p[1] + p[3]
-        if p[2] == '-':
-            p[0] = p[1] + p[2]
-        if p[2] == '*':
-            p[0] = p[1] + p[2]
-        if p[2] == '/':
-            p[0] = p[1] + p[2]
-        if p[1] == '(':
-            p[0] = p[2]
-"""
-
-
 def p_expression_comparisons(p):
     '''expression : expression ETO val
                   | expression LETHAN val
@@ -102,7 +111,6 @@ def p_expression_comparisons(p):
                   | expression GTHAN val
                   | expression LTHAN val '''
     raise NotImplementedError
-
 
 def p_expression_plus(p):
     'expression : expression PLUS val'
@@ -128,6 +136,38 @@ def p_expression_subtract(p):
         p[0] = number(p[1]) - number(p[3])
 
 
+def calc_rule(rule,bindings):
+    for x in range(0,len(bindings)):
+        variables[rule.args[x][0]]=bindings[x]
+    result=TypeConvert(parser.parse(rule.expression),rule.ret)
+    #keep global variables awway
+    return result
+def p_expression_rule(p):
+    '''expression : ID LPAREN args RPAREN'''
+    if p[1] in rules.keys():
+        #check that arguments given match arguments expected
+        if len(rules[p[1]].args) == len(p[3]):
+            p[0]=calc_rule(rules[p[1]],p[3])
+        else:
+            print('Error: Argument Mismatch, expeted',len(rules[p[1]].args),' found ',len(p[3]))
+    else:
+        print('Error: Rule not found:',p[1])
+
+
+def p_args(p):
+    '''args : val
+            | args val
+            | '''
+    #no args
+    if len(p) == 1:
+        p[0] = []
+    #one arg
+    elif len(p)==2:
+        p[0]=[p[1]]
+    else:
+        p[1].append(p[2])
+        p[0]=p[1]
+
 def p_expression_pow(p):
     'expression : expression POW val'
     p[0] = p[1] ** number(p[3])
@@ -151,6 +191,7 @@ def p_expression_val(p):
         p[0] = type_convert(p[1], p[3])
    
 # No string type change added
+# does not recognise Char/doubles to convert
 
 
 def p_value(p):
@@ -162,7 +203,12 @@ def p_value(p):
              | HEX '''
     p[0] = p[1]
 
-
+def p_val_id(p):
+    '''val : ID '''
+    if p[1] in variables.keys():
+        p[0] = variables[p[1]]
+    else:
+        print("ID not found:",p[1])
 def p_type(p):
     '''type : INT_T
             | FLOAT_T
@@ -172,9 +218,15 @@ def p_type(p):
             | HEX_T '''
     p[0] = p[1]
 
+def p_empty(p):
+    '''empty : '''
 
 def p_error(p):
     print("Syntax Error at", p.value)
+
+
+
+
 
 
 parser = yacc.yacc()

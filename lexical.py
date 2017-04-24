@@ -8,6 +8,9 @@ MORGAN PETERS AND SEAN GRAY
 
 import ply.lex as lex
 import sys
+states = (
+    ('rblock','exclusive'),
+)
 # reserved words...
 reserved = {
     'if': 'IF',
@@ -31,7 +34,7 @@ tokens_list = [
     'GTHAN',  # GREATERTHAN >
     'GETHAN',  # GREATERTHANOREQUALTO >=
     'ETO',  # EQUALTO ==
-    'TYPE', 'EQUALS',
+    'TYPE', 'RBLOCK',
     'VAR', 'ARROW',
     'MATCHBREAK',
     'EOL',  # END OF LINE
@@ -67,11 +70,32 @@ t_TIMES = r'\*'
 t_DIVIDE = r'/'
 t_POW = r'\^'
 t_ETO = r'=='
-t_EQUALS = r'='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_COLON = r':'
+t_EOL = r'!'
 
+def t_rblock(t):
+    r'='
+    t.lexer.code_start = t.lexer.lexpos
+    t.lexer.begin('rblock')
+def t_rblock_EOL(t):
+    r'!'
+    t.value = t.lexer.lexdata[t.lexer.code_start:t.lexer.lexpos-1]
+    t.type = "RBLOCK"
+    t.lexer.begin('INITIAL')
+    return t
+
+def t_rblock_STRING(t):
+   r'.^!+'
+   print("inString")
+
+# Ignored characters (whitespace)
+t_rblock_ignore = " \t\n"
+
+def t_rblock_error(t):
+    t.lexer.skip(1)
+   
 def t_STRING(t):
     r'(").+(")'
     t.value = t.value[1:-1]  # strips away the quotes
@@ -120,9 +144,10 @@ def t_COMMENT(t):
     # end of line; syntax the same as the example
 
 
-def t_EOL(t):
+'''def t_EOL(t):
     r'!+'
     t.lexer.lineno += len(t.value)
+    t.value = 'EOL'''
 
 
 def t_RESERVED(t):

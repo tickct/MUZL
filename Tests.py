@@ -20,7 +20,7 @@ class TestDataAssignment(unittest.TestCase):
     def test_HexOnlyAtoF(self):
         lexer=lex.getLexer()
         lexer.input("0x23g")
-        self.assertNotEqual(lexer.token().type,"HEX")
+        self.assertEqual(lexer.token().value,"0x23")
 
     def test_HexMustHaveVal(self):
         lexer=lex.getLexer()

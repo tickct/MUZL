@@ -27,18 +27,17 @@ reserved = {
 }
 # Token list
 tokens_list = [
-    'LOGIC',
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'POW',
     'LTHAN',  # LESSTHAN <
     'LETHAN',  # LESSTHANOREQUALTO <=
     'GTHAN',  # GREATERTHAN >
     'GETHAN',  # GREATERTHANOREQUALTO >=
     'ETO',  # EQUALTO ==
-    'TYPE', 'RBLOCK',
-    'VAR', 'ARROW',
+    'RBLOCK',
+    'ARROW',
     'MATCHBREAK',
     'EOL',  # END OF LINE
-    'COMMA', 'LBRACKET', 'RBRACKET', 'LPAREN', 'RPAREN', 'COLON','DOT',
+    'LBRACKET', 'RBRACKET', 'LPAREN', 'RPAREN', 'COLON','DOT',
     'ID',  # to match all words including reserved
 ]
 # separated for easier reading, list of types with variable values
@@ -56,7 +55,6 @@ tokens = tokens_list + data_types_list + list(reserved.values())
 
 # regular expressions
 t_MATCHBREAK = r'\|'
-t_COMMA = r'\,'
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 t_LETHAN = r'\<='
@@ -106,7 +104,7 @@ def t_STRING(t):
 # hex needs to be before int
 def t_HEX(t):
     r'0x(\d|[a-f]|[A-F])+'
-    t.value = t.value  # strips 0x
+    t.value = t.value
     return t
 
 

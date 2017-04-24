@@ -11,7 +11,6 @@ from lexical import tokens
 import MuzlRule
 
 rules={}
-variables={}
 
 def Number(a):
     if isinstance(a, int):
@@ -28,8 +27,8 @@ def Number(a):
             return ord(a)
         elif a[1] == 'x':
             return int(a,0)
-    
-    
+
+
 def TypeConvert(x,typ):
     if typ == 'hex':
         if isinstance(x,str):
@@ -71,15 +70,13 @@ def TypeConvert(x,typ):
 
 # this needs to stay above all the start options, it defines what items can stand alone in a parse
 def p_start(p):
-    '''start : rule
+    '''start : function
              | expression'''
     p[0] = p[1]
-    
 def p_rule(p):
-    '''rule : rname RULE LPAREN assign RPAREN ARROW type RBLOCK'''
-    rules[p[1]]=MuzlRule.rule(p[1],p[4],p[7],p[8])
+    '''function : rname RULE LPAREN assign RPAREN ARROW type EQUALS expression EOL'''
+    rules[p[1]]=MuzlRule.rule(p[1],p[4],p[7],p[9])
     p[0]= p[1] + ' created.'
-
 def p_rname(p):
     '''rname : ID'''
     p[0]=p[1]
@@ -88,32 +85,51 @@ def p_assign_variables(p):
               | ID type
               | empty '''
     if len(p) == 3:
-        p[0]=[[p[1],p[2]]]
+        p[0]={p[1]:p[2]}
     elif len(p) == 5:
-        #these two need to be on different lines due to = assigning before .append
-        p[1].append([p[3],p[4]])
-        p[0]=p[1]
-        #catch no args so it is empty list vs none
-    else:
-        p[0]=[]
-        
+        p[0]={**p[1],**{p[3],p[4]}}
+
 precedence = (
     ('nonassoc', 'LTHAN', 'GTHAN', 'ETO', 'GETHAN', 'LETHAN'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE'),
     ('left', 'POW')
     )
+
 def p_expression_comparisons(p):
     '''expression : expression ETO val
                   | expression LETHAN val
                   | expression GETHAN val
                   | expression GTHAN val
                   | expression LTHAN val '''
-    raise NotImplementedError
+    if p[2] == '==':
+        if p[1] == p[3]:
+            p[0] = True
+        else:
+            p[0] = False
+    elif p[2] == '<=':
+        if p[1] <= p[3]:
+            p[0] = True
+        else:
+            p[0] = False
+    elif p[2] == '>=':
+        if p[1] >= p[3]:
+            p[0] = True
+        else:
+            p[0] = False
+    elif p[2] == '>':
+        if p[1] > p[3]:
+            p[0] = True
+        else:
+            p[0] = False
+    elif p[2] == '<':
+        if p[1] < p[3]:
+            p[0] = True
+        else:
+            p[0] = False
 
 def p_expression_plus(p):
     'expression : expression PLUS val'
-    print(p[1],p[3])
     p[0] = Number(p[1]) + Number(p[3])
 
 def p_expression_mult(p):
@@ -129,27 +145,21 @@ def p_expression_subtract(p):
                   | MINUS expression'''
     if len(p) == 3:
         p[0]=-p[2]
-    else:    
+    else:
         p[0] = Number(p[1]) - Number(p[3])
 
-def calc_rule(rule,bindings):
-    for x in range(0,len(bindings)):
-        variables[rule.args[x][0]]=bindings[x]
-    result=TypeConvert(parser.parse(rule.expression),rule.ret)
-    #keep global variables awway
-    return result
-def p_expression_rule(p):
-    '''expression : ID LPAREN args RPAREN'''
+def p_val_rule(p):
+    '''val : ID LPAREN args RPAREN'''
     if p[1] in rules.keys():
         #check that arguments given match arguments expected
         if len(rules[p[1]].args) == len(p[3]):
-            p[0]=calc_rule(rules[p[1]],p[3])
+            p[0]=TypeConvert(rules[p[1]].expression,rules[p[1]].ret)
         else:
             print('Error: Argument Mismatch, expeted',len(rules[p[1]].args),' found ',len(p[3]))
     else:
         print('Error: Rule not found:',p[1])
 
-        
+
 def p_args(p):
     '''args : val
             | args val
@@ -161,9 +171,8 @@ def p_args(p):
     elif len(p)==2:
         p[0]=[p[1]]
     else:
-        p[1].append(p[2])
-        p[0]=p[1]
-        
+        p[0]=[p[1],p[2]]
+
 def p_expression_pow(p):
     'expression : expression POW val'
     p[0] = p[1] ** Number(p[3])
@@ -175,7 +184,7 @@ def p_expression_parens(p):
         p[0] = TypeConvert(p[2],p[5])
     else:
         p[0] = p[2]
-        
+
 def p_expression_val(p):
     '''expression : val
                   | val DOT type'''
@@ -183,11 +192,11 @@ def p_expression_val(p):
         p[0] = p[1]
     else:
         p[0] = TypeConvert(p[1],p[3])
-   
+
 # No string type change added
 # does not recognise Char/doubles to convert
 
-    
+
 
 def p_value(p):
     '''val : INT
@@ -198,12 +207,7 @@ def p_value(p):
              | HEX '''
     p[0] = p[1]
 
-def p_val_id(p):
-    '''val : ID '''
-    if p[1] in variables.keys():
-        p[0] = variables[p[1]]
-    else:
-        print("ID not found:",p[1])
+
 def p_type(p):
     '''type : INT_T
             | FLOAT_T

@@ -2,7 +2,7 @@
 Morgan Peters and Sean Gray
 CS 440: Languages and Translators
 Spring 2017
-Parser of MUZL
+AST output of MUZL
 """
 
 import ply.yacc as yacc
@@ -10,9 +10,31 @@ import ply.yacc as yacc
 from lexical import tokens
 import MuzlRule
 
+class Node:
+
+
+    def __init__(self,val):
+        self.val=val;
+        self.children=[]
+
+    def set_child(self,child):
+        self.children.append(child)
+
+def print_tree(node):
+    queue = [(node, 0)]
+    while queue:
+        current = queue.pop(0)
+        for x in current[0].children:
+            queue.append((x,current[1]+1))
+        if queue:
+            if queue[0][1] == current[1]:
+                print(current[0].val,end='\t')
+            else:
+                print(current[0].val)
+        else:
+            print(current[0].val)
 rules = {}
 variables = {}
-
 precedence = (
     ('nonassoc', 'LTHAN', 'GTHAN', 'ETO', 'GETHAN', 'LETHAN'),
     ('left', 'PLUS', 'MINUS'),
@@ -20,69 +42,13 @@ precedence = (
     ('left', 'POW')
 )
 
-def number(a):
-    if isinstance(a, int):
-        return float(a)
-    if isinstance(a, float):
-        return a
-    if isinstance(a, bool):
-        if a:
-            return 1
-        else:
-            return 0
-    if isinstance(a, str):
-        if len(a) == 1:
-            return ord(a)
-        elif a[1] == 'x':
-            return int(a, 0)
-
-
-def type_convert(x, typ):
-    if typ == 'hex':
-        if isinstance(x, str):
-            if len(x) == 1:
-                y = hex(ord(x))
-            else:
-                y = hex(int(x, 0))
-        else:
-            y = hex(int(x))
-    elif typ == 'int':
-        # char isnt a type in python
-        if isinstance(x, str):
-            if len(x) == 1:
-                y = ord(x)
-            else:
-                y = int(x, 0)
-        else:
-            y = int(round(x))
-    elif typ == 'char':
-        if isinstance(x, str):
-            if len(x) == 1:
-                y = x
-            else:
-                y = chr(int(x, 0))
-        else:
-            y = chr(int(x))
-    elif typ == 'bool':
-        y = bool(x)
-    elif typ == 'float':
-        # for char
-        if isinstance(x, str):
-            if len(x) == 1:
-                y = float(ord(x))
-            else:
-                y = float(int(x, 0))
-        else:
-            y = float(x)
-    return y
-
-
 # this needs to stay above all the start options, it defines what items can stand alone in a parse
 def p_start(p):
     '''start : rule
              | expression'''
-    p[0] = p[1]
-
+    node = Node("start")
+    node.set_child(p[1])
+    p[0]=node
 
 def p_rule(p):
     '''rule : rname RULE LPAREN assign RPAREN ARROW type RBLOCK'''
@@ -92,7 +58,8 @@ def p_rule(p):
 
 def p_rname(p):
     '''rname : ID'''
-    p[0] = p[1]
+    node =Node(p[1])
+    p[0] = node
 
 
 def p_assign_variables(p):
@@ -100,14 +67,16 @@ def p_assign_variables(p):
               | ID type
               | empty '''
     if len(p) == 3:
-        p[0] = [[p[1], p[2]]]
+        node = Node([[p[1], p[2]]])
+        p[0] = node
     elif len(p) == 5:
         # these two need to be on different lines due to = assigning before .append
-        p[1].append([p[3], p[4]])
-        p[0] = p[1]
+        node = Node([[p[3],p[4]]])
+        node.set_child(p[1])
+        p[0] = node
         # catch no args so it is empty list vs none
     else:
-        p[0] = []
+        p[0] = Node([])
 
 
 
@@ -117,73 +86,69 @@ def p_expression_comparisons(p):
                   | expression GETHAN val
                   | expression GTHAN val
                   | expression LTHAN val '''
-    if p[2] == '==':
-        if p[1] == p[3]:
-            p[0] = True
-        else:
-            p[0] = False
-    elif p[2] == '<=':
-        if p[1] <= p[3]:
-            p[0] = True
-        else:
-            p[0] = False
-    elif p[2] == '>=':
-        if p[1] >= p[3]:
-            p[0] = True
-        else:
-            p[0] = False
-    elif p[2] == '>':
-        if p[1] > p[3]:
-            p[0] = True
-        else:
-            p[0] = False
-    elif p[2] == '<':
-        if p[1] < p[3]:
-            p[0] = True
-        else:
-            p[0] = False
-
+    node = Node(p[2])
+    node.set_child(p[1])
+    node.set_child(p[3])
+    p[0] = node
 
 def p_expression_plus(p):
     'expression : expression PLUS term'
-    print("here")
-    p[0] = number(p[1]) + number(p[3])
+    node = Node(p[2])
+    node.set_child(p[1])
+    node.set_child(p[3])
+    p[0] = node
 
 
 def p_expression_subtract(p):
     '''expression : expression MINUS term
                   | MINUS expression'''
     if len(p) == 3:
-        p[0] = -p[2]
+        node = Node(p[1])
+        node.set_child(p[2])
+        p[0] = node
     else:
-        p[0] = number(p[1]) - number(p[3])
+        node = Node(p[2])
+        node.set_child(p[1])
+        node.set_child(p[3])
+        p[0] = node
 
 def p_expression_term(p):
     '''expression : term'''
-    p[0] = p[1]
+    node = Node("expression")
+    node.set_child(p[1])
+    p[0] = node
 
 def p_expression_mult(p):
     'term : term TIMES mathlv1'
-    p[0] = number(p[1]) * number(p[3])
+    node = Node(p[2])
+    node.set_child(p[1])
+    node.set_child(p[3])
+    p[0] = node
 
 
 def p_expression_divide(p):
     'term : term DIVIDE mathlv1'
-    p[0] = number(p[1]) / number(p[3])
+    node = Node(p[2])
+    node.set_child(p[1])
+    node.set_child(p[3])
+    p[0] = node
 
 def p_term_math1(p):
     'term : mathlv1'
-    p[0] = p[1]
+    node = Node("term")
+    node.set_child(p[1])
+    p[0] = node
 
 def p_math1_math0(p):
     'mathlv1 : mathlv0'
-    p[0] = p[1]
+    node = Node("mathlv1")
+    node.set_child(p[1])
+    p[0] = node
 
 def calc_rule(rule, bindings):
     for x in range(0, len(bindings)):
         variables[rule.args[x][0]] = bindings[x]
-    parse_result = type_convert(parser.parse(rule.expression), rule.ret)
-    print("here2")
+    parse_result = parser.parse(rule.expression)
     return parse_result
 
 
@@ -195,12 +160,16 @@ def p_expression_rule(p):
         # check that arguments given match arguments expected first set of ifs to see if args
         if len(p) > 4:
             if len(rules[p[1]].args) == len(p[3]):
-                p[0] = calc_rule(rules[p[1]], p[3])
+                node = Node("Rule")
+                node.set_child(calc_rule(rules[p[1]], p[3]))
+                p[0] = node
             else:
                 print('Error: Argument Mismatch, expeted', len(rules[p[1]].args), ' found ', len(p[3]))
         else:
             if len(rules[p[1]].args) == 0:
-                p[0] = calc_rule(rules[p[1]], [])
+                node = Node("Rule")
+                node.set_child(calc_rule(rules[p[1]],[]))
+                p[0] = node
             else:
                 print('Error: Argument Mismatch, expeted', len(rules[p[1]].args), ' found ', len(p[3]))
 
@@ -213,36 +182,53 @@ def p_args(p):
             | args val'''
     # no args
     if len(p) == 1:
-        p[0] = []
+        p[0] = Node([])
     # one arg
     elif len(p) == 2:
-        p[0] = [p[1]]
+        node = Node(p[1])
+        p[0] = node
     else:
-        p[1].append(p[2])
-        p[0] = p[1]
+        node = Node(p[2])
+        node.set_child(p[1])
+        p[0] = node
 
 
 def p_expression_pow(p):
     'mathlv1 : mathlv1 POW mathlv0'
-    p[0] = p[1] ** number(p[3])
+    node = Node(p[2])
+    node.set_child(p[1])
+    node.set_child(p[3])
+    p[0] = node
 
 
 def p_expression_parens(p):
     '''mathlv0 : LPAREN expression RPAREN
              | LPAREN expression RPAREN DOT type'''
     if len(p) == 6:
-        p[0] = type_convert(p[2], p[5])
+        node = Node('()')
+        node.set_child(p[2])
+        node2 = Node('.')
+        node2.set_child(p[5])
+        node2.set_child(node)
+        p[0] = node2
     else:
-        p[0] = p[2]
+        node = Node('()')
+        node.set_child(p[2])
+        p[0] = node
 
 
 def p_term_val(p):
     '''mathlv0 : val
              | val DOT type'''
     if len(p) == 2:
-        p[0] = p[1]
+        node = Node("mathlv0")
+        node.set_child(p[1])
+        p[0] = node
     else:
-        p[0] = type_convert(p[1], p[3])
+        node = Node('.')
+        node.set_child(p[1])
+        node.set_child(p[3])
+        p[0] = node
 
 
 # No string type change added
@@ -256,13 +242,13 @@ def p_value(p):
              | STRING
              | BOOL
              | HEX '''
-    p[0] = p[1]
+    p[0] = Node(p[1])
 
 
 def p_val_id(p):
     '''val : ID '''
     if p[1] in variables.keys():
-        p[0] = variables[p[1]]
+        p[0] = Node(variables[p[1]])
     else:
         print("ID not found:", p[1])
 
@@ -275,7 +261,7 @@ def p_type(p):
             | STRING_T
             | BOOL_T
             | HEX_T '''
-    p[0] = p[1]
+    p[0] = Node(p[1])
 
 
 def p_empty(p):
@@ -305,9 +291,5 @@ if __name__ == '__main__':
             break
         if not s:
             continue
-        result = parser.parse(s,debug=1)
-
-        print(result)
-
-
-
+        result = parser.parse(s)
+        print_tree(result)

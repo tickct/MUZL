@@ -15,8 +15,6 @@ states = (
 reserved = {
     'if': 'IF',
     'rule': 'RULE',
-    'start': 'START',
-    'match': 'MATCH',
     # the _T notation tells us it is a type declaration var not the value type
     'int': 'INT_T',
     'float': 'FLOAT_T',
@@ -35,9 +33,7 @@ tokens_list = [
     'ETO',  # EQUALTO ==
     'RBLOCK',
     'ARROW',
-    'MATCHBREAK',
-    'EOL',  # END OF LINE
-    'LBRACKET', 'RBRACKET', 'LPAREN', 'RPAREN', 'COLON','DOT',
+    'LPAREN', 'RPAREN', 'COLON','DOT',
     'ID',  # to match all words including reserved
 ]
 # separated for easier reading, list of types with variable values
@@ -54,9 +50,6 @@ data_types_list = [
 tokens = tokens_list + data_types_list + list(reserved.values())
 
 # regular expressions
-t_MATCHBREAK = r'\|'
-t_LBRACKET = r'\['
-t_RBRACKET = r'\]'
 t_LETHAN = r'\<='
 t_LTHAN = r'\<'
 t_GETHAN = r'\>='
@@ -71,7 +64,6 @@ t_ETO = r'=='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_COLON = r':'
-t_EOL = r'!'
 
 def t_rblock(t):
     r'='

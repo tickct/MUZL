@@ -9,6 +9,7 @@ import ply.yacc as yacc
 # token map import
 from lexical import tokens
 import MuzlRule
+import argparse
 
 rules = {}
 variables = {}
@@ -108,15 +109,25 @@ def p_assign_variables(p):
         # catch no args so it is empty list vs none
     else:
         p[0] = []
-
-
+def p_expression_conditional(p):
+    '''expression : IF LPAREN mathTop RPAREN expression COLON expression'''
+    if p[3]:
+        p[0]=p[5]
+    else:
+        p[0]=p[7]
+def p_expression_math(p):
+    'expression : mathTop'
+    p[0] = p[1]
+def p_mathTop_mathLV3(p):
+    'mathTop : mathlv3'
+    p[0] = p[1]
 
 def p_expression_comparisons(p):
-    '''expression : expression ETO val
-                  | expression LETHAN val
-                  | expression GETHAN val
-                  | expression GTHAN val
-                  | expression LTHAN val '''
+    '''mathTop : mathTop ETO mathlv3
+                  | mathTop LETHAN mathlv3
+                  | mathTop GETHAN mathlv3
+                  | mathTop GTHAN mathlv3
+                  | mathTop LTHAN mathlv3 '''
     if p[2] == '==':
         if p[1] == p[3]:
             p[0] = True
@@ -145,34 +156,33 @@ def p_expression_comparisons(p):
 
 
 def p_expression_plus(p):
-    'expression : expression PLUS term'
-    print("here")
+    'mathlv3 : mathlv3 PLUS mathlv2'
     p[0] = number(p[1]) + number(p[3])
 
 
 def p_expression_subtract(p):
-    '''expression : expression MINUS term
-                  | MINUS expression'''
+    '''mathlv3    : mathlv3 MINUS mathlv2
+                  | MINUS mathlv3'''
     if len(p) == 3:
         p[0] = -p[2]
     else:
         p[0] = number(p[1]) - number(p[3])
 
 def p_expression_term(p):
-    '''expression : term'''
+    '''mathlv3 : mathlv2'''
     p[0] = p[1]
 
 def p_expression_mult(p):
-    'term : term TIMES mathlv1'
+    'mathlv2 : mathlv2 TIMES mathlv1'
     p[0] = number(p[1]) * number(p[3])
 
 
 def p_expression_divide(p):
-    'term : term DIVIDE mathlv1'
+    'mathlv2 : mathlv2 DIVIDE mathlv1'
     p[0] = number(p[1]) / number(p[3])
 
 def p_term_math1(p):
-    'term : mathlv1'
+    'mathlv2 : mathlv1'
     p[0] = p[1]
 
 def p_math1_math0(p):
@@ -183,7 +193,6 @@ def calc_rule(rule, bindings):
     for x in range(0, len(bindings)):
         variables[rule.args[x][0]] = bindings[x]
     parse_result = type_convert(parser.parse(rule.expression), rule.ret)
-    print("here2")
     return parse_result
 
 
@@ -283,7 +292,10 @@ def p_empty(p):
 
 
 def p_error(p):
-    print("Syntax Error at", p.value)
+    if p:
+        print("Syntax Error at ", p.value)
+    else:
+        print("Syntax Error: END detected")
 
 
 
@@ -292,12 +304,15 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-
 def get_parser():
     return parser
 
 
 if __name__ == '__main__':
+    argp = argparse.ArgumentParser()
+    argp.add_argument('-d','--debug',help="output debug options",action="store_true")
+    args =argp.parse_args()
+
     while True:
         try:
             s = input('!-')
@@ -305,8 +320,10 @@ if __name__ == '__main__':
             break
         if not s:
             continue
-        result = parser.parse(s,debug=1)
-
+        if args.debug:
+            result = parser.parse(s,debug=1)
+        else:
+            result = parser.parse(s)
         print(result)
 
 

@@ -28,7 +28,7 @@ def print_tree(node):
             queue.append((x,current[1]+1))
         if queue:
             if queue[0][1] == current[1]:
-                print(current[0].val,end='\t')
+                print(current[0].val, end='\t')
             else:
                 print(current[0].val)
         else:
@@ -52,8 +52,14 @@ def p_start(p):
 
 def p_rule(p):
     '''rule : rname RULE LPAREN assign RPAREN ARROW type RBLOCK'''
-    rules[p[1]] = MuzlRule.rule(p[1], p[4], p[7], p[8])
-    p[0] = p[1] + ' created.'
+    rules[p[1].val] = MuzlRule.rule(p[1], p[4], p[7], p[8])
+    print(rules)
+    node = Node("rule")
+    node.set_child(p[1])
+    node.set_child(p[4])
+    node.set_child(p[7])
+    node.set_child(Node(p[8]))
+    p[0]=node
 
 
 def p_rname(p):
@@ -76,7 +82,7 @@ def p_assign_variables(p):
         p[0] = node
         # catch no args so it is empty list vs none
     else:
-        p[0] = Node([])
+        p[0] = Node("[]")
 
 
 
@@ -159,19 +165,20 @@ def p_expression_rule(p):
     if p[1] in rules.keys():
         # check that arguments given match arguments expected first set of ifs to see if args
         if len(p) > 4:
-            if len(rules[p[1]].args) == len(p[3]):
+            if len(rules[p[1]].args.val) == len(p[3]):
                 node = Node("Rule")
                 node.set_child(calc_rule(rules[p[1]], p[3]))
                 p[0] = node
             else:
                 print('Error: Argument Mismatch, expeted', len(rules[p[1]].args), ' found ', len(p[3]))
         else:
-            if len(rules[p[1]].args) == 0:
+            # it is 2 since the arg list is a string and '[]' is len 2
+            if len(rules[p[1]].args.val) == 2:
                 node = Node("Rule")
                 node.set_child(calc_rule(rules[p[1]],[]))
                 p[0] = node
             else:
-                print('Error: Argument Mismatch, expeted', len(rules[p[1]].args), ' found ', len(p[3]))
+                print('Error: Argument Mismatch, expeted', len(rules[p[1]].args.val), ' found ', len(p[3]))
 
     else:
         print('Error: Rule not found:', p[1])
@@ -269,9 +276,7 @@ def p_empty(p):
 
 
 def p_error(p):
-    print("Syntax Error at", p.value)
-
-
+    print("Syntax Error")
 
 
 
@@ -291,5 +296,5 @@ if __name__ == '__main__':
             break
         if not s:
             continue
-        result = parser.parse(s)
+        result = parser.parse(s,debug=1)
         print_tree(result)

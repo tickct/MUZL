@@ -14,7 +14,7 @@ class Node:
 
 
     def __init__(self,val):
-        self.val=val;
+        self.val=val
         self.children=[]
 
     def set_child(self,child):
@@ -22,17 +22,30 @@ class Node:
 
 def print_tree(node):
     queue = [(node, 0)]
+    a = False
+    b = False
+    c = False
     while queue:
         current = queue.pop(0)
         for x in current[0].children:
             queue.append((x,current[1]+1))
         if queue:
             if queue[0][1] == current[1]:
-                print(current[0].val,end='\t')
+                a = current[0].val
             else:
-                print(current[0].val)
+                b = current[0].val
         else:
-            print(current[0].val)
+            c = current[0].val
+
+        if not a and b:
+            print('{:^20}'.format(b))
+            b = False
+        if a and b:
+            print('{:^10} {:^10}'.format(a,b))
+            a = False
+            b = False
+        if c:
+            print('{:^10}'.format(c))
 rules = {}
 variables = {}
 precedence = (

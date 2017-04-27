@@ -21,6 +21,7 @@ precedence = (
     ('left', 'POW')
 )
 
+
 def number(a):
     if isinstance(a, int):
         return float(a)
@@ -296,10 +297,6 @@ def p_error(p):
         print("Syntax Error at ", p.value)
     else:
         print("Syntax Error: END detected")
-
-
-
-
 
 
 parser = yacc.yacc()

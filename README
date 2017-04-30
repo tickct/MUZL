@@ -83,7 +83,7 @@ Part 2 - Lexical Analyzer
 
  person type = name: string, age: int!
 
- name rule ( arg1 type; arg2 type ) -> type = (X + Y)!
+ name rule ( arg1 type; arg2 type ) -> type = (X + Y)
 
   fact rule (x:[int])-> int =
     match x

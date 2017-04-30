@@ -1,0 +1,36 @@
+Morgan Peters and Sean Gray
+
+Parser Report
+required packages : ply
+_________________________________________
+
+Input supported:
+addition, multiplication, subtraction, power, division
+of the types.. char, int, float, hex, boolean,
+(+,-,%,/,*,^)
+
+Not strictly type casted so any of these types can
+be added/subtracted/multiplied/divided by one another
+
+.type for example (.hex) will change the input to that tyoe
+
+comparision (>, >=. <, <=, ==)
+
+Functions layout:
+ name rule ( arg1: arg2) -> type = (X + Y)!
+
+Example Function:
+addxy rule ( x: y) -> int = (x + y)!
+
+
+To get AST trees
+
+    python3 parserAST.py
+
+To get debugging options
+
+    python3 parser.py -d
+
+Normal Parser:
+
+    python3 parser.py
